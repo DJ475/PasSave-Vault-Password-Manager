@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">PasSave Vault</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="signINButtonString"> Login </string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="RegisterButtonString">Register New Account</string>
+    <string name="MessageNewUser">You Are Now Creating A New User:\nUsernames Must Be Unqiue</string>
+    <string name="MessageLogin">Login Page:\nPlease Enter For Both Fields to Continue</string>
+    <string name="StringEncryptPassword">Enter Password To Encrypt Here...</string>
+    <string name="StringEncryptSourcePassword">Enter Source of Password...</string>
+    <string name="StringEncryptButton">Encrypt Password And Source</string>
+</resources>

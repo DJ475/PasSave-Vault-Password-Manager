@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/cancel_Registration"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="cancelAddArrow"
+        android:visible="false"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/add_Account"
+        android:icon="@drawable/add_icon"
+        android:title="Item"
+        app:showAsAction="ifRoom|withText" />
+</menu>

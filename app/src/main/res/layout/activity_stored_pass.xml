@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".StoredPassActivity">
+
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarActivityStore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
+
+    <LinearLayout
+        android:id="@+id/ContainerEncryptActivity"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/TextViewLoginDetails"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+        </TextView>
+
+        <EditText
+            android:id="@+id/EncryptPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.80"
+            android:hint="@string/StringEncryptPassword"
+            android:gravity="center"
+            android:textSize="25sp">
+        </EditText>
+
+        <EditText
+            android:id="@+id/EncryptSourcePassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.80"
+            android:hint="@string/StringEncryptSourcePassword"
+            android:gravity="center"
+            android:textSize="25sp">
+        </EditText>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/RecyclerViewPass"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.55">
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <Button
+            android:id="@+id/ButtonEncrypt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.75"
+            android:text="@string/StringEncryptButton"
+            android:textSize="25sp"
+            app:cornerRadius="0dp">
+        </Button>
+
+    </LinearLayout>
+
+
+</LinearLayout>
