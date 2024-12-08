@@ -56,13 +56,12 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
 //        }
     }
 
-    fun UpdateUserLoginStatus(usernameSpecified: String, loginStatusContentVal: ContentValues) {
+    fun UpdateUserLoginStatus(specificUserID: Int, loginStatusContentVal: ContentValues) {
         val db = this.readableDatabase
 
         // update specific user added to now be logged in
-        db?.update("User", loginStatusContentVal,"username = ?", arrayOf(usernameSpecified))
-        println("$usernameSpecified Updating to login status : $loginStatusContentVal")
-
+        db?.update("User", loginStatusContentVal,"User_id = ?", arrayOf(specificUserID.toString()))
+        println("$specificUserID Updating to login status : $loginStatusContentVal")
 
         // other users are then logged out, resulting in a 1 user logged in at a time
         // the reason 1 user is logged in at a time is because it would help protect other users

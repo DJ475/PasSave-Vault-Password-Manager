@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import org.mindrot.jbcrypt.BCrypt
 
 
 class LoginFragment : Fragment() {
@@ -20,8 +21,6 @@ class LoginFragment : Fragment() {
 
     private lateinit var UserDatabaseHelper: PassSaveDatabaseHelper
     private lateinit var sqLiteDatabase: SQLiteDatabase
-
-//    private lateinit var
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,6 +51,7 @@ class LoginFragment : Fragment() {
                 var usernameString = EditTextUsername.text.toString()
                 var passwordString = EditTextPassword.text.toString()
 
+
                 val cursorSelect = sqLiteDatabase.query(
                     "User",
                     arrayOf("User_id","username","password","login_status"), // select all columns
@@ -62,35 +62,83 @@ class LoginFragment : Fragment() {
                     null,
                     null // limit query to return only 1 user at a time
                 )
+
+                if(cursorSelect.moveToFirst())
+                {
+                    var column_id = cursorSelect.getColumnIndexOrThrow("User_id")
+                    var string_id = cursorSelect.getInt(column_id)
+
+                    println("Id of user logged in is $string_id")
+
+                val cursorFindId = sqLiteDatabase.query(
+                    "User",
+                    arrayOf("User_id","username","password","login_status"), // select all columns
+                    "User_id = ?", // where username in database matches user's input of username
+                    arrayOf(string_id.toString()),
+                    null,
+                    null,
+                    null,
+                    "1" // limit query to return only 1 user at a time
+                )
+
+                val cursorUserName = sqLiteDatabase.query(
+                    "User",
+                    arrayOf("User_id","username","password","login_status"), // select all columns
+                    "username = ?", // where username in database matches user's input of username
+                    arrayOf(usernameString),
+                    null,
+                    null,
+                    null,
+                    "1"
+                )
+
+                cursorFindId.moveToFirst() // move to first match found by cursor
+                val getColumn = cursorFindId.getColumnIndex("User_id")
+                println(cursorFindId.getString(getColumn))
+
                 // going through all of the cursor from the database in order to make sure username and password is valid
                 // when valid loop condition finds matching value from DB and starts storePasswordActivity
                 // when loop condition not reached then username was not found in database
-                while(cursorSelect.moveToNext()) {
-                    var column_username = cursorSelect.getColumnIndex("username")
-                    var column_pass = cursorSelect.getColumnIndex("password")
-                    if (cursorSelect.getString(column_username) == usernameString && cursorSelect.getString(column_pass) == passwordString) {
+                while(cursorUserName.moveToNext()) {
+                    var column_username = cursorUserName.getColumnIndex("username")
+                    var column_pass = cursorUserName.getColumnIndex("password")
+                    println("Username: $column_username, Password:$column_pass")
+                    if (usernameString == cursorUserName.getString(column_username) && BCrypt.checkpw(passwordString, cursorSelect.getString(column_pass).toString()))
+                    {
                         println("Username Found Logging In now")
 
                         val contentValuesLoggedIn = ContentValues().apply {
-                            put("login_status","LOGGED IN")
+                            put("login_status", "LOGGED IN")
                         }
 
-                        UserDatabaseHelper.UpdateUserLoginStatus(usernameString,contentValuesLoggedIn)
+                        UserDatabaseHelper.UpdateUserLoginStatus(string_id, contentValuesLoggedIn)
 
-                        var intent_PassStoreAct = Intent(requireContext(),StoredPassActivity()::class.java)
-                        intent_PassStoreAct.putExtra("usernameValue",usernameString)
+                        var intent_PassStoreAct =
+                            Intent(requireContext(), StoredPassActivity()::class.java)
+                        intent_PassStoreAct.putExtra("usernameValue", usernameString)
                         startActivity(intent_PassStoreAct)
-                    }
-                    else
-                    {
-                        break
+                        }
+                        else
+                        {
+                            println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
+                            break
+                        }
                     }
                 }
-                println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
-                EditTextUsername.text.clear()
-                EditTextPassword.text.clear()
+                else
+                {
+                    println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
+                    EditTextUsername.text.clear()
+                    EditTextPassword.text.clear()
+                }
             }
         }
         return view
+    }
+
+    override fun onStart() {
+        super.onStart()
+        EditTextUsername.text.clear()
+        EditTextPassword.text.clear()
     }
 }

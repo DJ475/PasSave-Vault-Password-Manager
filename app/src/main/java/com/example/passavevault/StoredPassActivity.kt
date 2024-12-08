@@ -2,7 +2,10 @@ package com.example.passavevault
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import android.os.Build
 import android.os.Bundle
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -17,6 +20,8 @@ import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
 
 class StoredPassActivity : AppCompatActivity() {
     private lateinit var SQLiteDatabase: SQLiteDatabase
@@ -121,6 +126,7 @@ class StoredPassActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        println("Logging every one out not")
+        println("Logging every one out now")
     }
+
 }

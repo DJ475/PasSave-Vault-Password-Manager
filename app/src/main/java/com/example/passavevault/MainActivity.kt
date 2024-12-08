@@ -15,11 +15,20 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+
+
+import org.mindrot.jbcrypt.BCrypt
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var sqLiteDatabase: SQLiteDatabase
     private lateinit var passSaveDatabaseHelper : PassSaveDatabaseHelper
     private lateinit var CurrentUser: String
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -38,6 +47,11 @@ class MainActivity : AppCompatActivity() {
         sqLiteDatabase = passSaveDatabaseHelper.readableDatabase
 
         fragmentChangeFun(LoginFragment())
+
+        // Destroying the Secret Key
+//        Cipher_E_D.Generate_AESKEY(256).destroy()
+
+//        println("Password Hashed is now: " + password)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -49,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         // Source: https://stackoverflow.com/questions/69068588/how-to-disable-an-item-from-a-menu-in-kotlin
         // make add icon disappear when add is pressed
         // can also make items appear, i use this to make add icon and list icon disappear
-        // as well as making cancel icon appear, giving option to make or not make account
+        // as well as making cancel icon appear, giving the option to create or cancel making an account
 
         val toolbar = findViewById<Toolbar>(R.id.toolbarMain)
         val ItemAddIcon = toolbar.menu.findItem(R.id.add_Account)
@@ -88,7 +102,6 @@ class MainActivity : AppCompatActivity() {
         ft.commit()
     }
 
-
     // Using an onStart allows for all users to be logged out when start of application
     // This way when the program is about to become visible it logs every one out
     // This is good for security specifically in my app:
@@ -102,7 +115,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         sqLiteDatabase.update("User",contentValuesAllUser,null,null)
+
     }
-
-
 }

@@ -16,6 +16,7 @@ import androidx.core.text.isDigitsOnly
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.mindrot.jbcrypt.BCrypt
 
 // DJ's Directory Database:
 // C:\Users\djibr\Desktop\Mobile Dev\CS 435\FinalProject\FINAL
@@ -63,9 +64,12 @@ class NewUserFragment : Fragment() {
 //                    null
 //                )
 
+                // create salt for more security
+                val hash_salt = BCrypt.gensalt()
+
                 val ValueLoggedIN = ContentValues().apply {
                     put("username",editTextNewUsername.text.toString())
-                    put("password",editTextNewPassword.text.toString())
+                    put("password",BCrypt.hashpw(editTextNewPassword.text.toString(), hash_salt))
                     put("login_status","LOGGED IN")
                 }
 
@@ -84,7 +88,10 @@ class NewUserFragment : Fragment() {
 
     private suspend fun DatabaseOperation(ValueLoggedIN: ContentValues)
     {
+
         val addNewUser = sqLiteDatabase.insertWithOnConflict("User",null,ValueLoggedIN,SQLiteDatabase.CONFLICT_IGNORE)
+
+
         // insertWithOnConflict comes back as -1 when fail
         if(addNewUser.toInt() == -1){
             println("This Username is Already Taken, Please Choose a unique username")
