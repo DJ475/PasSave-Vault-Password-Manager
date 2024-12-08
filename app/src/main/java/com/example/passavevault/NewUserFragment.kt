@@ -105,7 +105,7 @@ class NewUserFragment : Fragment() {
             // and log them in, logging out all other users
             // PassSaveDatabaseHelper(requireContext()).UpdateUserLoginStatus(editTextNewUsername.text.toString(),ValueLoggedIN)
 
-            var intent_LoggedIn = Intent(requireContext(), StoredPassActivity::class.java)
+            val intent_LoggedIn = Intent(requireContext(), StoredPassActivity::class.java)
             intent_LoggedIn.putExtra("usernameValue",editTextNewUsername.text.toString())
             startActivity(intent_LoggedIn)
 
