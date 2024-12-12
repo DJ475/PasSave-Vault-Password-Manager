@@ -52,18 +52,6 @@ class NewUserFragment : Fragment() {
             if(!editTextNewUsername.text.toString().isNullOrEmpty() || !editTextNewUsername.text.toString().isDigitsOnly() || !editTextNewPassword.text.isNullOrEmpty() || !editTextNewPassword.text.isDigitsOnly())
             {
 
-
-//                val cursorCheck = sqLiteDatabase.query(
-//                    "User",
-//                    null,
-//                    null,
-//                    null,
-//                    null,
-//                    null,
-//                    null,
-//                    null
-//                )
-
                 // create salt for more security
                 val hash_salt = BCrypt.gensalt()
 
@@ -98,15 +86,30 @@ class NewUserFragment : Fragment() {
         }
         else
         {
-//                    val updateLoginVal = ContentValues().apply {
-//                        put("login_status","Logged IN")
-//                    }
+
+            val cursorID = sqLiteDatabase.query(
+                "User",
+                arrayOf("User_id","username","password","login_status"),
+            "username = ?",
+                arrayOf(editTextNewUsername.text.toString()),
+                    null,
+                    null,
+                    null,
+                null
+            )
+
+            cursorID.moveToFirst()
+            var column = cursorID.getColumnIndex("User_id")
+            var stringIDFetch = cursorID.getInt(column)
+
+            println("The UserID that came back right now is: $stringIDFetch")
+
             // when new user added then go look for new user added in database
             // and log them in, logging out all other users
-            // PassSaveDatabaseHelper(requireContext()).UpdateUserLoginStatus(editTextNewUsername.text.toString(),ValueLoggedIN)
 
             val intent_LoggedIn = Intent(requireContext(), StoredPassActivity::class.java)
             intent_LoggedIn.putExtra("usernameValue",editTextNewUsername.text.toString())
+            intent_LoggedIn.putExtra("userID",stringIDFetch)
             startActivity(intent_LoggedIn)
 
             editTextNewUsername.text.clear()

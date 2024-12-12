@@ -13,4 +13,5 @@
     <string name="StringEncryptPassword">Enter Password To Encrypt Here...</string>
     <string name="StringEncryptSourcePassword">Enter Source of Password...</string>
     <string name="StringEncryptButton">Encrypt Password And Source</string>
+    <string name="SuggestStrongPass">Click Here If You Want Us To Generate A Strong Password</string>
 </resources>

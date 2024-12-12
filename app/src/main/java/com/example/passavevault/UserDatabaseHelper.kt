@@ -31,6 +31,7 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
         """.trimIndent()
         db?.execSQL(query)
 
+
         val query2 = """
             CREATE TABLE UserPassword (
                 Password_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,12 +80,12 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
 
 
 
-    fun SelectSpecificUser(cursorPosition: Int, id: Int): Cursor {
+    fun SelectAllUser(): Cursor {
         val db = this.readableDatabase
 
         var cursor = db.query(
-            "color",
-            arrayOf("_id","color","R","G","B","isfavorite"),
+            "UserPassword",
+            arrayOf("User_id","username","password","login_status"),
             null,
             null,
             null, // where statements
@@ -93,32 +94,6 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
             null
         )
 
-        cursor.moveToPosition(cursorPosition)
-
-        println(cursorPosition)
-
-
-        val getFavorite = cursor.getColumnIndex("R")
-        val valueSpecific = cursor.getString(getFavorite)
-
         return cursor
     }
-
-//    fun getAllPasswordsForUser(): Cursor {
-//        val db = this.readableDatabase
-//
-//        val cursor = db.query(
-//            "color",
-//            arrayOf("_id","color","R","G","B","isfavorite"),
-//            null,
-//            null,
-//            null, // where statements
-//            null, // where statements
-//            null,
-//            null
-//        )
-//
-//        return cursor
-//    }
-
 }

@@ -112,15 +112,18 @@ class LoginFragment : Fragment() {
                         }
 
                         UserDatabaseHelper.UpdateUserLoginStatus(string_id, contentValuesLoggedIn)
+                        clearInput()
 
-                        var intent_PassStoreAct =
-                            Intent(requireContext(), StoredPassActivity()::class.java)
+                        val intent_PassStoreAct = Intent(requireContext(), StoredPassActivity()::class.java)
                         intent_PassStoreAct.putExtra("usernameValue", usernameString)
+                        intent_PassStoreAct.putExtra("userID",string_id)
                         startActivity(intent_PassStoreAct)
+
                         }
                         else
                         {
                             println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
+                            clearInput()
                             break
                         }
                     }
@@ -128,8 +131,7 @@ class LoginFragment : Fragment() {
                 else
                 {
                     println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
-                    EditTextUsername.text.clear()
-                    EditTextPassword.text.clear()
+                    clearInput()
                 }
             }
         }
@@ -138,6 +140,11 @@ class LoginFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        clearInput()
+    }
+
+    fun clearInput()
+    {
         EditTextUsername.text.clear()
         EditTextPassword.text.clear()
     }
