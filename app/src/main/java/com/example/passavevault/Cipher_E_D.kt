@@ -1,27 +1,25 @@
 package com.example.passavevault
 
-import android.os.Build
-import android.security.keystore.KeyGenParameterSpec
+import android.content.ContentValues
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.security.keystore.KeyProperties
-import android.util.Log
-import androidx.annotation.RequiresApi
-import java.io.OutputStream
-import java.security.KeyStore
-import java.security.KeyStore.Entry
-import java.security.KeyStoreSpi
-import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.jvm.internal.Ref.ByteRef
-import kotlin.math.log
+import android.util.Base64
+import java.security.SecureRandom
 
 class Cipher_E_D {
+    lateinit var SQLiteDatabase : SQLiteDatabase
+    lateinit var passSaveDatabaseHelper: PassSaveDatabaseHelper
+
+
     companion object
     {
+        lateinit var ivAll: IvParameterSpec
+
         // function for generating the aes secret key
         fun Generate_AESKEY(Alias: String): SecretKey? {
 //            var AndroidKeyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore")
@@ -37,51 +35,50 @@ class Cipher_E_D {
 
             AndroidKeyGen.generateKey()
 
-
-
-
-
             val secretKeyVar = AndroidKeyGen.generateKey()
             println("Secret key is: $secretKeyVar")
+            ActivityDecrypt.secretKeyPassed = secretKeyVar
             return secretKeyVar
         }
 
+//        lateinit var ivAll?: IvParameterSpec
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun createIV(): IvParameterSpec
+    fun encryptInfo(
+        dataSent: ByteArray,
+        SecretKey: SecretKey,
+        applicationContext: Context,
+        userID: Int
+    ): ByteArray
     {
-        var RandomSecureIV : SecureRandom = SecureRandom.getInstanceStrong()
-        var CipherInstance = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        var iv : ByteArray = ByteArray(CipherInstance.blockSize)
-        RandomSecureIV.nextBytes(iv)
+        passSaveDatabaseHelper = PassSaveDatabaseHelper(applicationContext)
+        SQLiteDatabase = passSaveDatabaseHelper.readableDatabase
 
-        return IvParameterSpec(iv)
-    }
-
-
-    fun encryptInfo(dataSent: ByteArray, SecretKey: SecretKey): ByteArray
-    {
         val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
 
-        val ivParameterSpecVar = IvParameterSpec(ByteArray(16))
-        println("IV is: $ivParameterSpecVar")
-        cipher.init(Cipher.ENCRYPT_MODE,SecretKey, ivParameterSpecVar)
+        val ivParameterEmptyByte = ByteArray(16)
+        SecureRandom().nextBytes(ivParameterEmptyByte)
+
+        println("Password ID founnnddd $userID")
+
+        var ivParameterSpecVar = IvParameterSpec(ivParameterEmptyByte)
+        ivAll = ivParameterSpecVar
+        val conentValsIV = ContentValues().apply {
+            put("iv", ivParameterEmptyByte)
+            put("Password_id", userID)
+        }
+
+        // insert iv in database for decryption
+        SQLiteDatabase.insert("Iv_Table",null,conentValsIV)
+
+        cipher.init(Cipher.ENCRYPT_MODE,SecretKey, IvParameterSpec(ivParameterEmptyByte))
         return cipher.doFinal(dataSent)
-//        var finalIV = ""
-//        val resultIV = cipher.iv
-//        val ivString = Base64.encode(resultIV)
-//        finalIV += ivString + " "
-//
-//        return finalIV.toByteArray()
-
     }
 
-    fun decryptInfo(dataSent: ByteArray, SecretKeyPassed: SecretKey): ByteArray
-    {
+    fun decryptInfo(dataSent: ByteArray, SecretKeyPassed: SecretKey): ByteArray {
         val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        val ivParameterSpec = IvParameterSpec(ByteArray(16))
-        cipher.init(Cipher.DECRYPT_MODE,SecretKeyPassed, ivParameterSpec)
+        println("IV in decrypt function is: $ivAll")
+        cipher.init(Cipher.DECRYPT_MODE,SecretKeyPassed, ivAll)
         return cipher.doFinal(dataSent)
     }
 }

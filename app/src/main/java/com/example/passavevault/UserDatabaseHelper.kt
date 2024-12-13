@@ -35,13 +35,23 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
         val query2 = """
             CREATE TABLE UserPassword (
                 Password_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                passwordEncrypted TEXT,
+                passwordEncrypted BLOB,
                 source_site_password TEXT,
                 User_id INTEGER,
                 FOREIGN KEY (User_id) REFERENCES User(User_id)
             );
         """.trimIndent()
         db?.execSQL(query2)
+
+        val query3 = """
+            CREATE TABLE Iv_Table (
+                iv_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                iv BLOB,
+                Password_id INTEGER,
+                FOREIGN KEY (Password_id) REFERENCES UserPassword(Password_id)
+            );
+        """.trimIndent()
+        db?.execSQL(query3)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -80,14 +90,14 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
 
 
 
-    fun SelectAllUser(): Cursor {
+    fun SelectSpecific(userID : Int): Cursor {
         val db = this.readableDatabase
 
         var cursor = db.query(
             "UserPassword",
-            arrayOf("User_id","username","password","login_status"),
-            null,
-            null,
+            arrayOf("Password_id","passwordEncrypted","source_site_password","User_id"),
+            "User_id = ?",
+            arrayOf(userID.toString()),
             null, // where statements
             null, // where statements
             null,
@@ -95,5 +105,13 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
         )
 
         return cursor
+    }
+
+    fun DeleteSpecific(PasswordID : Int)
+    {
+        val db = this.readableDatabase
+        println("Deleting Record: $PasswordID")
+
+        db.delete("UserPassword", "Password_id = ?", arrayOf(PasswordID.toString()))
     }
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="130dp"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:id="@+id/ContainerPasswordRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/TextViewRecyclerPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5">
+        </TextView>
+
+        <TextView
+            android:id="@+id/TextViewRecyclerPasswordSource"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5">
+        </TextView>
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

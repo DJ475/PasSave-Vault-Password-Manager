@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/blue"
     tools:context=".StoredPassActivity">
 
 
@@ -15,6 +16,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
+        android:backgroundTint="@color/blueDark"
         android:theme="?attr/actionBarTheme" />
 
     <LinearLayout
@@ -39,6 +41,7 @@
             android:layout_weight="0.80"
             android:hint="@string/StringEncryptPassword"
             android:gravity="center"
+            android:textColor="@color/black"
             android:textSize="25sp">
         </EditText>
 
@@ -50,8 +53,10 @@
             android:inputType="textPassword"
             android:hint="@string/StringEncryptSourcePassword"
             android:gravity="center"
+            android:textColor="@color/black"
             android:textSize="25sp">
         </EditText>
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/RecyclerViewPass"
@@ -66,6 +71,7 @@
             android:layout_height="match_parent"
             android:layout_weight="0.75"
             android:text="@string/StringEncryptButton"
+            android:backgroundTint="@color/black"
             android:textSize="25sp"
             app:cornerRadius="0dp">
         </Button>
@@ -86,6 +92,7 @@
             android:padding="20dp"
             android:text="@string/SuggestStrongPass"
             android:textColor="@color/white"
+            android:backgroundTint="@color/black"
             android:textColorLink="#787878"
             android:textSize="20sp"
             app:cornerRadius="0dp">

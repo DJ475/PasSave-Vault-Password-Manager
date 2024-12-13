@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/blue"
     tools:context=".NewUserFragment">
 
     <LinearLayout
@@ -62,6 +63,7 @@
         android:layout_marginBottom="64dp"
         app:cornerRadius="0dp"
         android:text="@string/RegisterButtonString"
+        android:backgroundTint="@color/black"
         />
     </LinearLayout>
 

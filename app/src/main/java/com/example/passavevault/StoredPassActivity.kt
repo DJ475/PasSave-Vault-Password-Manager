@@ -1,7 +1,7 @@
 package com.example.passavevault
 
 import android.content.ContentValues
-import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,8 +31,10 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import javax.crypto.Cipher
+import javax.crypto.SecretKey
 
-class StoredPassActivity : AppCompatActivity() {
+class StoredPassActivity : AppCompatActivity(), ItemAdapter.ItemAdapterListener {
     private lateinit var SQLiteDatabase: SQLiteDatabase
     private lateinit var passSaveDatabaseHelper: PassSaveDatabaseHelper
 
@@ -45,6 +49,14 @@ class StoredPassActivity : AppCompatActivity() {
     private lateinit var ButtonSubmit: Button
 
     private lateinit var buttonGeneratePass: Button
+
+    lateinit var RecyclerView: RecyclerView
+
+    lateinit var itemAdapter: ItemAdapter
+
+    private lateinit var cursor: Cursor
+
+    private lateinit var secretKey: SecretKey
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,39 +83,64 @@ class StoredPassActivity : AppCompatActivity() {
 
         buttonGeneratePass = findViewById(R.id.ClickStrongPassGEN)
 
+        RecyclerView = findViewById(R.id.RecyclerViewPass)
+
+
         usernameGet = intent.getStringExtra("usernameValue").toString()
         userID = intent.getIntExtra("userID",0)
 
         val secretKey = Cipher_E_D.Generate_AESKEY("secretKeyAlias")
-        println("Secret key: $secretKey")
+        if (secretKey != null) {
+            ActivityDecrypt.secretKeyPassed = secretKey
+        }
+
+        println("Secret key passing to Activity Decrypt: $secretKey")
+
+        cursor = SQLiteDatabase.query(
+            "UserPassword",
+            arrayOf("Password_id","passwordEncrypted","source_site_password","User_id"),
+            "User_id = ?",
+            arrayOf(userID.toString()),
+            null, // where statements
+            null, // where statements
+            null,
+            null
+        )
+
+        cursor.moveToFirst()
+
+        // pass cursor to item adapter as well as item adapter listener
+        updateItemAdapter()
 
         ButtonSubmit.setOnClickListener {
-            println("Print Here")
-
-            val EncryptedStringPass = secretKey?.let { it1 ->
-                Cipher_E_D().encryptInfo(
-                    EditTextEncryptPass.text.toString().toByteArray(),
-                    it1
-                )
+            if(EditTextEncryptSource.text.toString().isEmpty())
+            {
+                Toast.makeText(applicationContext,"Source/Website of Password", Toast.LENGTH_LONG).show()
+                println("Source/Website of Password")
+                return@setOnClickListener
             }
-
-            val EncryptedSource = secretKey?.let { it1 ->
-                Cipher_E_D().encryptInfo(
-                    EditTextEncryptSource.text.toString().toByteArray(),
-                    it1
-                )
+            if(EditTextEncryptPass.text.toString().isEmpty())
+            {
+                Toast.makeText(applicationContext,"Password Entry Is Empty, Please Enter Valid Input", Toast.LENGTH_LONG).show()
+                println("Password Entry Is Empty, Please Enter Valid Input")
+                return@setOnClickListener
             }
+            val EncryptedStringPass = secretKey?.let { it1 -> Cipher_E_D().encryptInfo(EditTextEncryptPass.text.toString().toByteArray(), it1, applicationContext, userID) }
 
-            println("Encrypted String PAss: $EncryptedStringPass")
+//            val cipherDe = EncryptedStringPass?.let { it1 -> Cipher_E_D().decryptInfo(it1, secretKey) }
+//            println("Decrypted String is ${cipherDe.toString()}")
 
             val contentValues = ContentValues().apply {
-                put("passwordEncrypted",EncryptedStringPass.toString())
-                put("source_site_password",EncryptedSource.toString())
+                put("passwordEncrypted",EncryptedStringPass)
+                put("source_site_password",EditTextEncryptSource.text.toString())
                 put("User_id",userID)
             }
 
             SQLiteDatabase.insert("UserPassword",null, contentValues)
 
+            updateItemAdapter()
+
+            clearUserInput()
 
 //            var DecryptedStringPassword =
 //                EncryptedStringPass?.let { it1 -> Cipher_E_D().decryptInfo(it1, secretKey) }
@@ -120,11 +157,15 @@ class StoredPassActivity : AppCompatActivity() {
             // Get EditText for taking userInput from user in alertDialog
             val builder = AlertDialog.Builder(this)
             var StringUserInLengthPass = ""
-            builder.setTitle("Please Enter Length Of Strong Password\n(Note That 10 Characters and Above is a Strong Default Password")
+            builder.setTitle("Please Enter Length Of Strong Password\n")
+            builder.setMessage("Note that the Lowest is 7 Characters")
 
             val viewEditText = layoutInflater.inflate(R.layout.edit_text_layout, null)
 
             val getUserIN = viewEditText.findViewById<EditText>(R.id.EditTextStrongPassLen)
+
+            getUserIN.setTextColor(R.color.white)
+            getUserIN.setBackgroundColor(R.color.black)
 
             builder.setView(viewEditText)
             builder.setPositiveButton("Enter") { dialog, which ->
@@ -159,13 +200,11 @@ class StoredPassActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.Logout_Icon -> {
-                var contentValuesLogOut = ContentValues().apply {
-                    put("login_status", "LOGGED OUT")
-                }
-
                 CoroutineScope(Dispatchers.IO).launch {
                     UpdateLoginOperation()
                 }
+
+                clearUserInput()
 
                 finish()
                 // look into this for destorying activity and logging all users out
@@ -181,7 +220,6 @@ class StoredPassActivity : AppCompatActivity() {
     }
 
     private suspend fun UpdateLoginOperation() {
-//        PassSaveDatabaseHelper(applicationContext).UpdateUserLoginStatus(usernameGet,contentValuesLogOut)
         var contentValuesLogOut = ContentValues().apply {
             put("login_status", "LOGGED OUT")
         }
@@ -189,18 +227,11 @@ class StoredPassActivity : AppCompatActivity() {
         println("$usernameGet Updating to login status : $contentValuesLogOut")
     }
 
-    override fun onStop() {
-        super.onStop()
-        println("Logging every one out now")
-    }
-
     suspend fun APIStrongPass(UserInputLengthPass: String) {
         println("Its working Now doing api stuff")
 
         withContext(Dispatchers.Main)
         {
-            println("Length Chosen is : $UserInputLengthPass")
-
             if(UserInputLengthPass.toInt() <= 7)
             {
                 Toast.makeText(applicationContext,"Typically a Strong Password is greater than 7 characters ${UserInputLengthPass.length}",Toast.LENGTH_LONG).show()
@@ -236,8 +267,6 @@ class StoredPassActivity : AppCompatActivity() {
 
                 var passwordGen = jsonObject.getString("password")
 
-                println("Password Found is $passwordGen")
-
                 withContext(Dispatchers.Main)
                 {
                     //change Edit Text for User to Come up With a Secure Password For them
@@ -257,4 +286,43 @@ class StoredPassActivity : AppCompatActivity() {
         }
     }
 
+    fun clearUserInput()
+    {
+        EditTextEncryptPass.text.clear()
+        EditTextEncryptSource.text.clear()
+    }
+
+    fun updateItemAdapter()
+    {
+        // pass cursor to item adapter as well as item adapter listener
+        var newSelect = PassSaveDatabaseHelper(applicationContext).SelectSpecific(userID)
+
+        itemAdapter = ItemAdapter(newSelect, this)
+        RecyclerView.adapter = itemAdapter
+        RecyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        itemAdapter?.notifyDataSetChanged()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateItemAdapter()
+    }
+
+    override fun clicked(position: Int) {
+//        var encryptedStringSource = cursorFind.getString(column)
+//
+//        println("Your Password Pressed" + encryptedStringPass)
+//        println("Your Source Pressed" + encryptedStringSource)
+//
+//        var decryptedStringSource = encryptedStringSource?.let { it2 -> Cipher_E_D().decryptInfo(it2.toByteArray(), secretKey) }
+//
+//        println("Decrypted String is: " + decryptedStringSource.toString())
+        //            var DecryptedStringPassword =
+//
+//
+//
+//            println("Decrypted String PAss: $DecryptedStringPassword")
+//            var decyrpt_text = java.lang.String(DecryptedStringPassword)
+//            println("Decrypt TExt: $decyrpt_text")
+    }
 }

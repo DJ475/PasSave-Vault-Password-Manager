@@ -66,15 +66,16 @@ class LoginFragment : Fragment() {
                 if(cursorSelect.moveToFirst())
                 {
                     var column_id = cursorSelect.getColumnIndexOrThrow("User_id")
-                    var string_id = cursorSelect.getInt(column_id)
+                    var id_user = cursorSelect.getInt(column_id)
 
-                    println("Id of user logged in is $string_id")
+                    println("Id of user logged in is $id_user")
+                    ActivityDecrypt.userIdPassed = id_user
 
                 val cursorFindId = sqLiteDatabase.query(
                     "User",
                     arrayOf("User_id","username","password","login_status"), // select all columns
                     "User_id = ?", // where username in database matches user's input of username
-                    arrayOf(string_id.toString()),
+                    arrayOf(id_user.toString()),
                     null,
                     null,
                     null,
@@ -111,18 +112,18 @@ class LoginFragment : Fragment() {
                             put("login_status", "LOGGED IN")
                         }
 
-                        UserDatabaseHelper.UpdateUserLoginStatus(string_id, contentValuesLoggedIn)
+                        UserDatabaseHelper.UpdateUserLoginStatus(id_user, contentValuesLoggedIn)
                         clearInput()
 
                         val intent_PassStoreAct = Intent(requireContext(), StoredPassActivity()::class.java)
                         intent_PassStoreAct.putExtra("usernameValue", usernameString)
-                        intent_PassStoreAct.putExtra("userID",string_id)
+                        intent_PassStoreAct.putExtra("userID",id_user)
                         startActivity(intent_PassStoreAct)
 
                         }
                         else
                         {
-                            println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
+                            Toast.makeText(requireContext(),"Username or Password Not Found Please Make Sure The Information Above Is Correct",Toast.LENGTH_LONG).show()
                             clearInput()
                             break
                         }
@@ -130,6 +131,7 @@ class LoginFragment : Fragment() {
                 }
                 else
                 {
+                    Toast.makeText(requireContext(),"Username or Password Not Found Please Make Sure The Information Above Is Correct",Toast.LENGTH_LONG).show()
                     println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
                     clearInput()
                 }
