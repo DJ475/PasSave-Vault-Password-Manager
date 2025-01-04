@@ -14,7 +14,7 @@
         android:id="@+id/toolbarActivityStore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@color/blue"
         android:minHeight="?attr/actionBarSize"
         android:backgroundTint="@color/blueDark"
         android:theme="?attr/actionBarTheme" />
@@ -73,6 +73,7 @@
             android:text="@string/StringEncryptButton"
             android:backgroundTint="@color/black"
             android:textSize="25sp"
+            android:backgroundTint="@color/blue"
             app:cornerRadius="0dp">
         </Button>
 
@@ -94,6 +95,7 @@
             android:textColor="@color/white"
             android:backgroundTint="@color/black"
             android:textColorLink="#787878"
+            android:backgroundTint="@color/blue"
             android:textSize="20sp"
             app:cornerRadius="0dp">
 

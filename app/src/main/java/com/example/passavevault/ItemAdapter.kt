@@ -5,75 +5,72 @@ import android.content.Intent
 import android.database.Cursor
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.TEXT_ALIGNMENT_CENTER
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import android.util.Base64
+import android.util.Log
 
-class ItemAdapter(private val Cursor: Cursor, private val applicationContext: Context): RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
-    interface ItemAdapterListener
-    {
-        fun clicked(position: Int)
-    }
-    class ViewHolder(itemView: View, private val cursorPassed: Cursor, val storedPassContext: Context): RecyclerView.ViewHolder(itemView) {
-        private val LinearLayoutPass: LinearLayout = itemView.findViewById(R.id.ContainerPasswordRecycler)
-        private val textViewPassword: TextView = itemView.findViewById(R.id.TextViewRecyclerPassword)
-        private val textViewSource: TextView = itemView.findViewById(R.id.TextViewRecyclerPasswordSource)
+class ItemAdapter(private val cursor: Cursor, applicationContextPassed: Context): RecyclerView.Adapter<ItemAdapter.ViewHolder>() {
+
+    class ViewHolder(itemView: View, private var cursor: Cursor, private var applicationContextPassed: Context ): RecyclerView.ViewHolder(itemView) {
+        private val textViewPass: TextView = itemView.findViewById(R.id.TextViewPass)
+        private val textViewSource: TextView = itemView.findViewById(R.id.TextViewSource)
+        private val linearLayoutClicked : LinearLayout = itemView.findViewById(R.id.RecyclerLayoutContainer)
 
         init {
             itemView.setOnClickListener{
                 val position = adapterPosition
-                cursorPassed.moveToPosition(position)
+                cursor.moveToPosition(position)
+                var columns = cursor.getColumnIndex("source_site_password")
+                var stringSources = cursor.getString(columns)
+
+                columns = cursor.getColumnIndex("passwordEncrypted")
+
+                var stringPassword = cursor.getString(columns)
+
+                var decodedInfo = Base64.decode(stringPassword, Base64.DEFAULT)
+
+                var ivposition = decodedInfo.indexOf(0x3A.toByte())
+
+                var extractPass = decodedInfo.copyOfRange(0,ivposition)
+                var extractIV = decodedInfo.copyOfRange(ivposition+1,decodedInfo.size)
+
+                var intentDetail = Intent(applicationContextPassed, DetailedPassDecrypt::class.java)
+                intentDetail.putExtra("extractedPassword", extractPass)
+                intentDetail.putExtra("extractedIV", extractIV)
+                applicationContextPassed.startActivity(intentDetail)
             }
         }
 
 
-        fun update(item: Cursor, positionID: Int)
+        fun update(item: Boolean)
         {
-            var column = item.getColumnIndex("passwordEncrypted")
-            textViewPassword.text = item.getBlob(column).toString()
-            val encryptedStringPass = item.getBlob(column)
+            var column = cursor.getColumnIndexOrThrow("passwordEncrypted")
+            textViewPass.text = cursor.getString(column)
+            textViewPass.textAlignment = TEXT_ALIGNMENT_CENTER
 
-            column = item.getColumnIndex("source_site_password")
-            textViewSource.text = item.getString(column)
-            val encryptedStringSource = item.getString(column)
-
-            column = item.getColumnIndex("Password_id")
-            val IDOfCurrentPass = item.getInt(column)
-
-
-            LinearLayoutPass.setOnClickListener {
-//                column = cursorPassed.getColumnIndex("Password_id")
-//                var PasswordID = cursorPassed.getInt(column)
-
-                println("Your Password Pressed" + encryptedStringPass)
-                println("Your Source Pressed" + encryptedStringSource)
-//                println("PasswordID is ${positionID+1}") // position starts at index 0
-
-                val IntentSendDecrypt = Intent(storedPassContext,ActivityDecrypt::class.java)
-                ActivityDecrypt.EncryptedString = encryptedStringPass
-                IntentSendDecrypt.putExtra("PasswordEncrypted", encryptedStringPass)
-                IntentSendDecrypt.putExtra("PasswordSourceEncrypted", encryptedStringSource)
-                IntentSendDecrypt.putExtra("PasswordID", IDOfCurrentPass)
-
-                storedPassContext.startActivity(IntentSendDecrypt)
-            }
+            column = cursor.getColumnIndexOrThrow("source_site_password")
+            textViewSource.text = cursor.getString(column)
+            textViewSource.textAlignment = TEXT_ALIGNMENT_CENTER
         }
     }
 
     // inflates layout and passes back to view holder in order to access viewHolder
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_layout, parent, false)
-        return ViewHolder(view, Cursor, applicationContext)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.recyclerlayout, parent, false)
+        return ViewHolder(view, cursor, parent.context)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        Cursor.moveToPosition(position)
-        holder.update(Cursor, position)
+    override fun onBindViewHolder(holder: ItemAdapter.ViewHolder, position: Int) {
+        val item = cursor.moveToPosition(position)
+        holder.update(item)
     }
 
     override fun getItemCount(): Int {
         // check amount of items/size of data model
-        return Cursor.count
+        return cursor.count
     }
 }
