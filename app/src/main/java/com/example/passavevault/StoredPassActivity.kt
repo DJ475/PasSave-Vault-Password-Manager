@@ -1,10 +1,11 @@
 package com.example.passavevault
 
 import android.content.ContentValues
-import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.os.Bundle
+import android.util.Base64
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,6 +49,8 @@ class StoredPassActivity : AppCompatActivity() {
 
     private lateinit var buttonGeneratePass: Button
 
+    private lateinit var RecyclerView : RecyclerView
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,48 +76,41 @@ class StoredPassActivity : AppCompatActivity() {
 
         buttonGeneratePass = findViewById(R.id.ClickStrongPassGEN)
 
+        RecyclerView = findViewById(R.id.RecyclerViewPass)
+
         usernameGet = intent.getStringExtra("usernameValue").toString()
         userID = intent.getIntExtra("userID",0)
 
+        ReloadItemAdapter()
+
         val secretKey = Cipher_E_D.Generate_AESKEY("secretKeyAlias")
-        println("Secret key: $secretKey")
+        if(secretKey == null)
+        {
+            Log.d("Error DJ", "Secret Key is null")
+        }
 
         ButtonSubmit.setOnClickListener {
             println("Print Here")
 
-            val EncryptedStringPass = secretKey?.let { it1 ->
-                Cipher_E_D().encryptInfo(
-                    EditTextEncryptPass.text.toString().toByteArray(),
-                    it1
+            if (secretKey != null) {
+                val encrypted = Cipher_E_D().encryptInfo(
+                    Base64.encodeToString(EditTextEncryptPass.text.toString().toByteArray(), Base64.DEFAULT),
+                    EditTextEncryptSource.text.toString(),
+                    userID,
+                    secretKey,
+                    applicationContext
                 )
+                println("Encrypted String: $encrypted")
+            } else {
+                Log.e("EncryptionError", "Failed to encrypt. Secret key is null.")
+                Toast.makeText(this, "Encryption failed due to missing secret key.", Toast.LENGTH_SHORT).show()
             }
 
-            val EncryptedSource = secretKey?.let { it1 ->
-                Cipher_E_D().encryptInfo(
-                    EditTextEncryptSource.text.toString().toByteArray(),
-                    it1
-                )
-            }
+            EditTextEncryptPass.text.clear()
+            EditTextEncryptSource.text.clear()
 
-            println("Encrypted String PAss: $EncryptedStringPass")
+            ReloadItemAdapter()
 
-            val contentValues = ContentValues().apply {
-                put("passwordEncrypted",EncryptedStringPass.toString())
-                put("source_site_password",EncryptedSource.toString())
-                put("User_id",userID)
-            }
-
-            SQLiteDatabase.insert("UserPassword",null, contentValues)
-
-
-//            var DecryptedStringPassword =
-//                EncryptedStringPass?.let { it1 -> Cipher_E_D().decryptInfo(it1, secretKey) }
-//
-//
-//
-//            println("Decrypted String PAss: $DecryptedStringPassword")
-//            var decyrpt_text = java.lang.String(DecryptedStringPassword)
-//            println("Decrypt TExt: $decyrpt_text")
         }
 
         buttonGeneratePass.setOnClickListener {
@@ -168,11 +166,6 @@ class StoredPassActivity : AppCompatActivity() {
                 }
 
                 finish()
-                // look into this for destorying activity and logging all users out
-                // finishActivity()
-
-                // Idea: make it so they cant go back and login to new user unless current user is logged out
-                // this helps create more security
                 true
             }
             // TO DO
@@ -187,11 +180,6 @@ class StoredPassActivity : AppCompatActivity() {
         }
         SQLiteDatabase?.update("User", contentValuesLogOut, "username = ?", arrayOf(usernameGet))
         println("$usernameGet Updating to login status : $contentValuesLogOut")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        println("Logging every one out now")
     }
 
     suspend fun APIStrongPass(UserInputLengthPass: String) {
@@ -257,4 +245,26 @@ class StoredPassActivity : AppCompatActivity() {
         }
     }
 
+    fun ReloadItemAdapter()
+    {
+        var cursor = SQLiteDatabase.query(
+            "UserPassword",
+            arrayOf("Password_id","passwordEncrypted","source_site_password","User_id"),
+            "User_id = ?",
+            arrayOf(userID.toString()),
+            null,
+            null,
+            null,
+            null
+        )
+        
+        RecyclerView.adapter = ItemAdapter(cursor, applicationContext)
+        RecyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        RecyclerView.adapter?.notifyDataSetChanged()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        println("On Resume")
+    }
 }

@@ -10,7 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Toast
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mindrot.jbcrypt.BCrypt
 
 
@@ -21,6 +26,8 @@ class LoginFragment : Fragment() {
 
     private lateinit var UserDatabaseHelper: PassSaveDatabaseHelper
     private lateinit var sqLiteDatabase: SQLiteDatabase
+
+    private lateinit var loadingBarLogin : ProgressBar
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,13 +40,17 @@ class LoginFragment : Fragment() {
         EditTextPassword = view.findViewById(R.id.passwordEditText)
         ButtonLogin = view.findViewById(R.id.loginButton)
 
+        loadingBarLogin = view.findViewById(R.id.loadingBarLogin)
+
         UserDatabaseHelper = PassSaveDatabaseHelper(requireContext())
         sqLiteDatabase = UserDatabaseHelper.readableDatabase
 
         ButtonLogin.setOnClickListener{
+            loadingBarLogin.visibility = View.VISIBLE
             if (EditTextUsername.text.isEmpty() || EditTextPassword.text.isEmpty()) {
                 Toast.makeText(requireContext(), "User Entered A Invalid Input", Toast.LENGTH_LONG).show()
                 println("Empty or Bad Input Detected, Please Make Sure to Enter For Both Fields")
+                loadingBarLogin.visibility = View.GONE
                 // check users database, if found in query then login and change to stored password activity
                 // else its not found and should say no user exists with that name
             }
@@ -106,36 +117,54 @@ class LoginFragment : Fragment() {
                     if (usernameString == cursorUserName.getString(column_username) && BCrypt.checkpw(passwordString, cursorSelect.getString(column_pass).toString()))
                     {
                         println("Username Found Logging In now")
-
-                        val contentValuesLoggedIn = ContentValues().apply {
-                            put("login_status", "LOGGED IN")
+                        loadingBarLogin.visibility = View.VISIBLE
+                        CoroutineScope(Dispatchers.IO).launch {
+                            UpdateLoginBackground(string_id,usernameString)
                         }
 
-                        UserDatabaseHelper.UpdateUserLoginStatus(string_id, contentValuesLoggedIn)
-                        clearInput()
+                        loadingBarLogin.visibility = View.GONE
 
-                        val intent_PassStoreAct = Intent(requireContext(), StoredPassActivity()::class.java)
-                        intent_PassStoreAct.putExtra("usernameValue", usernameString)
-                        intent_PassStoreAct.putExtra("userID",string_id)
-                        startActivity(intent_PassStoreAct)
-
-                        }
-                        else
-                        {
-                            println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
-                            clearInput()
-                            break
-                        }
                     }
+                    else
+                    {
+                        loadingBarLogin.visibility = View.GONE
+                        println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
+                        clearInput()
+                        break
+                    }
+                }
                 }
                 else
                 {
+                    loadingBarLogin.visibility = View.GONE
                     println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
                     clearInput()
                 }
             }
         }
         return view
+    }
+
+    suspend fun UpdateLoginBackground(string_id: Int, usernameString: String)
+    {
+        val contentValuesLoggedIn = ContentValues().apply {
+            put("login_status", "LOGGED IN")
+        }
+
+        UserDatabaseHelper.UpdateUserLoginStatus(string_id, contentValuesLoggedIn)
+        clearInput()
+
+        withContext(Dispatchers.Main)
+        {
+            loadingBarLogin.visibility = View.GONE
+
+            val intent_PassStoreAct = Intent(requireContext(), StoredPassActivity()::class.java)
+            intent_PassStoreAct.putExtra("usernameValue", usernameString)
+            intent_PassStoreAct.putExtra("userID",string_id)
+            startActivity(intent_PassStoreAct)
+        }
+
+
     }
 
     override fun onStart() {

@@ -56,12 +56,13 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="48dp"
             android:layout_marginBottom="64dp"
+            android:backgroundTint="@color/blue"
             app:cornerRadius="0dp"
             android:text="@string/signINButtonString"
             />
 
         <ProgressBar
-            android:id="@+id/loadingBarRegister"
+            android:id="@+id/loadingBarLogin"
             android:layout_width="match_parent"
             android:layout_height="63dp"
             android:layout_gravity="center"

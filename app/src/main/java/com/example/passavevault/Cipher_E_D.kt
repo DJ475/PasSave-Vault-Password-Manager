@@ -1,87 +1,112 @@
 package com.example.passavevault
 
+import android.content.ContentValues
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
 import androidx.annotation.RequiresApi
-import java.io.OutputStream
 import java.security.KeyStore
-import java.security.KeyStore.Entry
-import java.security.KeyStoreSpi
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.jvm.internal.Ref.ByteRef
-import kotlin.math.log
+import javax.crypto.spec.SecretKeySpec
+import android.util.Base64
 
 class Cipher_E_D {
+    private lateinit var SQLiteDatabase: SQLiteDatabase
+    private lateinit var passSaveDatabaseHelper: PassSaveDatabaseHelper
     companion object
     {
         // function for generating the aes secret key
         fun Generate_AESKEY(Alias: String): SecretKey? {
-//            var AndroidKeyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore")
-            var AndroidKeyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES)
+            var AndroidKeyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
 
-//            var keyParameterSpec = KeyGenParameterSpec.Builder(Alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-//                .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-//                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-//                .setUserAuthenticationRequired(false)
-//                .setKeySize(256)
-//                .build()
-//            AndroidKeyGen.init(keyParameterSpec)
+            var keyStore = KeyStore.getInstance("AndroidKeyStore")
+            keyStore.load(null)
 
-            AndroidKeyGen.generateKey()
+            // Check if the key already exists
+            if (keyStore.containsAlias(Alias)) {
+                println("Key already exists with alias: $Alias")
+                val key = keyStore.getKey(Alias, null)
+                if (key is SecretKey) {
+                    return key
+                } else {
+                    println("Key retrieved is not a SecretKey")
+                    return null
+                }
+            }
 
-
-
-
+            var keyParameterSpec = KeyGenParameterSpec.Builder(Alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                .setUserAuthenticationRequired(false)
+                .setKeySize(256)
+                .build()
+            AndroidKeyGen.init(keyParameterSpec)
 
             val secretKeyVar = AndroidKeyGen.generateKey()
-            println("Secret key is: $secretKeyVar")
             return secretKeyVar
         }
 
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createIV(): IvParameterSpec
+    fun encryptInfo(
+        dataSent: String,
+        Source: String,
+        userId: Int,
+        SecretKey: SecretKey,
+        ContextStoredActivity: Context?
+    ): ByteArray
     {
-        var RandomSecureIV : SecureRandom = SecureRandom.getInstanceStrong()
-        var CipherInstance = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        var iv : ByteArray = ByteArray(CipherInstance.blockSize)
-        RandomSecureIV.nextBytes(iv)
+        val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
 
-        return IvParameterSpec(iv)
+        cipher.init(Cipher.ENCRYPT_MODE,SecretKey)
+
+        var encryptedStringFinal = cipher.doFinal(dataSent.encodeToByteArray())
+
+        var ivGetKeyStore = cipher.iv
+
+        var delimeterColon = byteArrayOf(0x3A)
+
+        var combinedPassword = encryptedStringFinal + delimeterColon + ivGetKeyStore
+
+        var stringRepresentation = Base64.encodeToString(combinedPassword,Base64.DEFAULT)
+
+        val contentValues = ContentValues().apply {
+            put("passwordEncrypted",stringRepresentation)
+            put("source_site_password",Source)
+            put("User_id",userId)
+        }
+
+        passSaveDatabaseHelper = ContextStoredActivity?.let { PassSaveDatabaseHelper(it) }!!
+        SQLiteDatabase = passSaveDatabaseHelper.readableDatabase
+
+        SQLiteDatabase.insert("UserPassword",null, contentValues)
+
+        return combinedPassword
     }
 
-
-    fun encryptInfo(dataSent: ByteArray, SecretKey: SecretKey): ByteArray
+    fun decryptInfo(dataSent: ByteArray,iv: ByteArray): String
     {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
 
-        val ivParameterSpecVar = IvParameterSpec(ByteArray(16))
-        println("IV is: $ivParameterSpecVar")
-        cipher.init(Cipher.ENCRYPT_MODE,SecretKey, ivParameterSpecVar)
-        return cipher.doFinal(dataSent)
-//        var finalIV = ""
-//        val resultIV = cipher.iv
-//        val ivString = Base64.encode(resultIV)
-//        finalIV += ivString + " "
-//
-//        return finalIV.toByteArray()
+        var keyStore = KeyStore.getInstance("AndroidKeyStore")
+        keyStore.load(null)
+        var secretKey = keyStore.getKey("secretKeyAlias",null) as SecretKey
 
-    }
+        var ivParamSpec = IvParameterSpec(iv)
+        cipher.init(Cipher.DECRYPT_MODE,secretKey, ivParamSpec)
 
-    fun decryptInfo(dataSent: ByteArray, SecretKeyPassed: SecretKey): ByteArray
-    {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        val ivParameterSpec = IvParameterSpec(ByteArray(16))
-        cipher.init(Cipher.DECRYPT_MODE,SecretKeyPassed, ivParameterSpec)
-        return cipher.doFinal(dataSent)
+        Log.d("Decrypt Info", "Data to decrypt: ${Base64.encodeToString(dataSent, Base64.DEFAULT)}")
+        Log.d("Decrypt Info", "IV: ${Base64.encodeToString(iv, Base64.DEFAULT)}")
+
+        var cipherFinalDecrypt = cipher.doFinal(dataSent)
+        return String(Base64.decode(cipherFinalDecrypt,Base64.DEFAULT))
     }
 }

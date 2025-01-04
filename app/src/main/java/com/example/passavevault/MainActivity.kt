@@ -20,6 +20,7 @@ import javax.crypto.SecretKey
 
 
 import org.mindrot.jbcrypt.BCrypt
+import java.security.KeyStore
 
 
 class MainActivity : AppCompatActivity() {
@@ -46,13 +47,34 @@ class MainActivity : AppCompatActivity() {
         passSaveDatabaseHelper = PassSaveDatabaseHelper(applicationContext)
         sqLiteDatabase = passSaveDatabaseHelper.readableDatabase
 
+//        try {
+//            // Load the AndroidKeyStore instance
+//            val keyStore = KeyStore.getInstance("AndroidKeyStore")
+//            keyStore.load(null) // Initialize with default values
+//
+//            // Enumerate all aliases in the keystore
+//            val aliases = keyStore.aliases()
+//            while (aliases.hasMoreElements()) {
+//                val alias = aliases.nextElement()
+//                // Delete each entry
+//                keyStore.deleteEntry(alias)
+//                println("Deleted key with alias: $alias")
+//            }
+//            println("Keystore cleared successfully.")
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            println("Error clearing keystore: ${e.message}")
+//        }
+
         fragmentChangeFun(LoginFragment())
 
         // Destroying the Secret Key
-//        Cipher_E_D.Generate_AESKEY(256).destroy()
+
 
 //        println("Password Hashed is now: " + password)
     }
+
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main,menu)
