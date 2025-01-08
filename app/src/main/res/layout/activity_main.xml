@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/blue"
     tools:context=".MainActivity" >
 
 
@@ -16,7 +15,6 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
-        android:backgroundTint="@color/blueDark"
         android:theme="?attr/actionBarTheme" />
 
     <FrameLayout

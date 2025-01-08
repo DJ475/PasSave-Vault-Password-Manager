@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/blue"
     tools:context=".StoredPassActivity">
 
 
@@ -14,9 +13,7 @@
         android:id="@+id/toolbarActivityStore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/blue"
         android:minHeight="?attr/actionBarSize"
-        android:backgroundTint="@color/blueDark"
         android:theme="?attr/actionBarTheme" />
 
     <LinearLayout
@@ -71,9 +68,7 @@
             android:layout_height="match_parent"
             android:layout_weight="0.75"
             android:text="@string/StringEncryptButton"
-            android:backgroundTint="@color/black"
             android:textSize="25sp"
-            android:backgroundTint="@color/blue"
             app:cornerRadius="0dp">
         </Button>
 
@@ -93,9 +88,7 @@
             android:padding="20dp"
             android:text="@string/SuggestStrongPass"
             android:textColor="@color/white"
-            android:backgroundTint="@color/black"
             android:textColorLink="#787878"
-            android:backgroundTint="@color/blue"
             android:textSize="20sp"
             app:cornerRadius="0dp">
 

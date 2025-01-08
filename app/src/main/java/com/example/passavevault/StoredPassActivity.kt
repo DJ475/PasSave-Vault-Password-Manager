@@ -81,7 +81,7 @@ class StoredPassActivity : AppCompatActivity() {
         usernameGet = intent.getStringExtra("usernameValue").toString()
         userID = intent.getIntExtra("userID",0)
 
-        ReloadItemAdapter()
+        ReloadItemAdapter(SQLiteDatabase)
 
         val secretKey = Cipher_E_D.Generate_AESKEY("secretKeyAlias")
         if(secretKey == null)
@@ -91,6 +91,11 @@ class StoredPassActivity : AppCompatActivity() {
 
         ButtonSubmit.setOnClickListener {
             println("Print Here")
+
+            if(EditTextEncryptPass.text.isEmpty() || EditTextEncryptSource.text.isEmpty())
+            {
+                Toast.makeText(this,"Please Enter Password and Source to Continue",Toast.LENGTH_SHORT).show()
+            }
 
             if (secretKey != null) {
                 val encrypted = Cipher_E_D().encryptInfo(
@@ -109,8 +114,7 @@ class StoredPassActivity : AppCompatActivity() {
             EditTextEncryptPass.text.clear()
             EditTextEncryptSource.text.clear()
 
-            ReloadItemAdapter()
-
+            ReloadItemAdapter(SQLiteDatabase)
         }
 
         buttonGeneratePass.setOnClickListener {
@@ -245,26 +249,19 @@ class StoredPassActivity : AppCompatActivity() {
         }
     }
 
-    fun ReloadItemAdapter()
+    fun ReloadItemAdapter(databaseInstance: SQLiteDatabase)
     {
-        var cursor = SQLiteDatabase.query(
-            "UserPassword",
-            arrayOf("Password_id","passwordEncrypted","source_site_password","User_id"),
-            "User_id = ?",
-            arrayOf(userID.toString()),
-            null,
-            null,
-            null,
-            null
-        )
-        
-        RecyclerView.adapter = ItemAdapter(cursor, applicationContext)
+        var cursor = passSaveDatabaseHelper.SelectSpecific(userID)
+
+        RecyclerView = findViewById(R.id.RecyclerViewPass)
+
+        RecyclerView.adapter = ItemAdapter(cursor)
         RecyclerView.layoutManager = LinearLayoutManager(applicationContext)
         RecyclerView.adapter?.notifyDataSetChanged()
     }
 
     override fun onResume() {
         super.onResume()
-        println("On Resume")
+        ReloadItemAdapter(SQLiteDatabase)
     }
 }

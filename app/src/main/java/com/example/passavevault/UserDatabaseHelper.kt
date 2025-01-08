@@ -42,16 +42,6 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
             );
         """.trimIndent()
         db?.execSQL(query2)
-
-        val query3 = """
-            CREATE TABLE Iv_Table (
-                iv_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                iv BLOB,
-                Password_id INTEGER,
-                FOREIGN KEY (Password_id) REFERENCES UserPassword(Password_id)
-            );
-        """.trimIndent()
-        db?.execSQL(query3)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -75,8 +65,8 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
         println("$specificUserID Updating to login status : $loginStatusContentVal")
 
         // other users are then logged out, resulting in a 1 user logged in at a time
-        // the reason 1 user is logged in at a time is because it would help protect other users
-        // by only allowing 1 user who has to be logged in to be able to encrypt/view their passwords at a time
+        // the reason 1 user is logged in at a time is because it would help protect other user's accounts on the device
+        // by only allowing 1 user who has to be logged in to be able to encrypt/decrypt view their passwords at a time
 //        val contentValLogout = ContentValues().apply {
 //            put("login_status", "LOGGED OUT")
 //        }
@@ -114,4 +104,13 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
 
         db.delete("UserPassword", "Password_id = ?", arrayOf(PasswordID.toString()))
     }
+
+    fun UpdatePassword(PasswordID : Int, Values : ContentValues)
+    {
+        val db = this.readableDatabase
+        println("Updating Record: $PasswordID")
+
+        db.update("UserPassword", Values, "Password_id = ?", arrayOf(PasswordID.toString()))
+    }
+
 }
