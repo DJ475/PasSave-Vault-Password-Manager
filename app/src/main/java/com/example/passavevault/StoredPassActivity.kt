@@ -92,9 +92,10 @@ class StoredPassActivity : AppCompatActivity() {
         ButtonSubmit.setOnClickListener {
             println("Print Here")
 
-            if(EditTextEncryptPass.text.isEmpty() || EditTextEncryptSource.text.isEmpty())
+            if(EditTextEncryptPass.text.isNullOrEmpty() || EditTextEncryptSource.text.isNullOrEmpty())
             {
                 Toast.makeText(this,"Please Enter Password and Source to Continue",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
             if (secretKey != null) {
