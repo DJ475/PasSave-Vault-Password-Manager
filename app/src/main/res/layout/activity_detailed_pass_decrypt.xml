@@ -8,6 +8,14 @@
     android:orientation="vertical"
     tools:context=".DetailedPassDecrypt">
 
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/default_color"
+        android:layout_weight="0.55">
+
+    </androidx.appcompat.widget.Toolbar>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -9,11 +9,13 @@
     tools:context=".StoredPassActivity">
 
 
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarActivityStore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
+        android:background="@color/default_color"
         android:theme="?attr/actionBarTheme" />
 
     <LinearLayout
