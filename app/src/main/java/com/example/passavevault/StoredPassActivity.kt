@@ -132,6 +132,11 @@ class StoredPassActivity : AppCompatActivity() {
             builder.setView(viewEditText)
             builder.setPositiveButton("Enter") { dialog, which ->
                 StringUserInLengthPass = getUserIN.text.toString()
+                if(StringUserInLengthPass.toInt() < 13)
+                {
+                    Toast.makeText(applicationContext,"Most Secure Passwords Are a Length of 13 or more Characters\n\nPlease Retry",Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
                 println(StringUserInLengthPass)
 
                 CoroutineScope(Dispatchers.IO).launch {
