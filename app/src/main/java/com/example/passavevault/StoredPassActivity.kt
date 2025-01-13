@@ -92,9 +92,10 @@ class StoredPassActivity : AppCompatActivity() {
         ButtonSubmit.setOnClickListener {
             println("Print Here")
 
-            if(EditTextEncryptPass.text.isEmpty() || EditTextEncryptSource.text.isEmpty())
+            if(EditTextEncryptPass.text.isNullOrEmpty() || EditTextEncryptSource.text.isNullOrEmpty())
             {
                 Toast.makeText(this,"Please Enter Password and Source to Continue",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
             if (secretKey != null) {
@@ -131,6 +132,11 @@ class StoredPassActivity : AppCompatActivity() {
             builder.setView(viewEditText)
             builder.setPositiveButton("Enter") { dialog, which ->
                 StringUserInLengthPass = getUserIN.text.toString()
+                if(StringUserInLengthPass.toInt() < 13)
+                {
+                    Toast.makeText(applicationContext,"Most Secure Passwords Are a Length of 13 or more Characters\n\nPlease Retry",Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
                 println(StringUserInLengthPass)
 
                 CoroutineScope(Dispatchers.IO).launch {
