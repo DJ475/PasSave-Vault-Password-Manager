@@ -56,44 +56,6 @@ class DetailedPassDecrypt : AppCompatActivity() {
             finish()
         }
 
-//        buttonUpdate.setOnClickListener {
-//            if(editTextPassword.text.isNullOrEmpty())
-//            {
-//                Toast.makeText(applicationContext,"New Password Cannot Be Empty or Null, Please Try Again", Toast.LENGTH_LONG).show()
-//                return@setOnClickListener
-//            }
-//            else
-//            {
-//                val keyStore = KeyStore.getInstance("AndroidKeyStore")
-//                keyStore.load(null)
-//
-//                val secretKey = keyStore.getKey("secretKeyAlias", null) as SecretKey
-//
-//                val encrypted = Cipher_E_D().encryptInfo(
-//                    editTextPassword.text.toString(),
-//                    editTextSource.text.toString(),
-//                    userID,
-//                    secretKey,
-//                    applicationContext,
-//                    true
-//                )
-//
-//                var contentValues = ContentValues().apply {
-//                    put("passwordEncrypted", encrypted)
-//                    put("source_site_password", editTextSource.text.toString())
-//                    put("User_id", userID)
-//                    put("Password_id", Password_id)
-//                }
-//
-//                println("source of site to update: ${editTextSource.text}")
-//                println("User ID to update: $userID")
-//                println("Password ID to update: $Password_id")
-//
-////                passSaveDatabaseHelper.UpdatePassword(Password_id,contentValues)
-//                finish()
-//            }
-//        }
-
         if(getPass != null && getIV != null)
         {
             var decryptString = Cipher_E_D().decryptInfo(getPass,getIV)

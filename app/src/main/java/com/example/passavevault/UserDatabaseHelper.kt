@@ -104,13 +104,4 @@ class PassSaveDatabaseHelper(context: Context): SQLiteOpenHelper(context, DB_NAM
 
         db.delete("UserPassword", "Password_id = ?", arrayOf(PasswordID.toString()))
     }
-
-    fun UpdatePassword(PasswordID : Int, Values : ContentValues)
-    {
-        val db = this.readableDatabase
-        println("Updating Record: $PasswordID")
-
-        db.update("UserPassword", Values, "Password_id = ?", arrayOf(PasswordID.toString()))
-    }
-
 }
