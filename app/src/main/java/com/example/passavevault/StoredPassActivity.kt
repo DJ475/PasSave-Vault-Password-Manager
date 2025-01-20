@@ -44,7 +44,6 @@ class StoredPassActivity : AppCompatActivity() {
 
     private lateinit var EditTextEncryptPass: EditText
     private lateinit var EditTextEncryptSource: EditText
-    private lateinit var EditTextUsername: EditText
 
     private lateinit var ButtonSubmit: Button
 
@@ -58,8 +57,8 @@ class StoredPassActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_stored_pass)
 
-        var toobar2 = findViewById<Toolbar>(R.id.toolbarActivityStore)
-        setSupportActionBar(toobar2)
+        val toolbar2 = findViewById<Toolbar>(R.id.toolbarActivityStore)
+        setSupportActionBar(toolbar2)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -126,7 +125,7 @@ class StoredPassActivity : AppCompatActivity() {
             // Source: https://www.digitalocean.com/community/tutorials/android-alert-dialog-using-kotlin
             // Get EditText for taking userInput from user in alertDialog
             val builder = AlertDialog.Builder(this)
-            var StringUserInLengthPass = ""
+            var StringUserInLengthPass: String
             builder.setTitle("Please Enter Length Of Strong Password\n(Note That 10 Characters and Above is a Strong Default Password")
 
             val viewEditText = layoutInflater.inflate(R.layout.edit_text_layout, null)
@@ -156,10 +155,14 @@ class StoredPassActivity : AppCompatActivity() {
 
         if (usernameGet.isEmpty()) {
             textViewLoginDetails.visibility - View.VISIBLE
-            textViewLoginDetails.text = "Login Failed User Not Found"
+            textViewLoginDetails.text = buildString {
+        append("Login Failed User Not Found")
+    }
         } else {
             textViewLoginDetails.visibility - View.VISIBLE
-            textViewLoginDetails.text = "Login Success"
+            textViewLoginDetails.text = buildString {
+        append("Login Success")
+    }
         }
     }
 
@@ -196,7 +199,7 @@ class StoredPassActivity : AppCompatActivity() {
         println("$usernameGet Updating to login status : $contentValuesLogOut")
     }
 
-    suspend fun APIStrongPass(UserInputLengthPass: String) {
+    private suspend fun APIStrongPass(UserInputLengthPass: String) {
         println("Its working Now doing api stuff")
 
         withContext(Dispatchers.Main)
@@ -259,7 +262,7 @@ class StoredPassActivity : AppCompatActivity() {
         }
     }
 
-    fun ReloadItemAdapter(databaseInstance: SQLiteDatabase)
+    private fun ReloadItemAdapter(databaseInstance: SQLiteDatabase)
     {
         var cursor = passSaveDatabaseHelper.SelectSpecific(userID)
 
