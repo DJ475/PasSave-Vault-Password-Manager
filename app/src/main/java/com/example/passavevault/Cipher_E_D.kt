@@ -61,7 +61,8 @@ class Cipher_E_D {
         Source: String,
         userId: Int,
         SecretKey: SecretKey,
-        ContextStoredActivity: Context?
+        ContextStoredActivity: Context?,
+        YesUpdateStatus: Boolean,
     ): ByteArray
     {
         val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
@@ -76,18 +77,29 @@ class Cipher_E_D {
 
         var combinedPassword = encryptedStringFinal + delimeterColon + ivGetKeyStore
 
-        var stringRepresentation = Base64.encodeToString(combinedPassword,Base64.DEFAULT)
+        //var stringRepresentation = Base64.encodeToString(combinedPassword,Base64.DEFAULT)
 
-        val contentValues = ContentValues().apply {
-            put("passwordEncrypted",stringRepresentation)
-            put("source_site_password",Source)
-            put("User_id",userId)
+        if(YesUpdateStatus == true)
+        {
+            println("Code is now completing update functionality")
+            return combinedPassword
         }
+        else
+        {
+            println("code is now adding to database")
+            val contentValues = ContentValues().apply {
+                put("passwordEncrypted",combinedPassword)
+//                put("username_email",Username_Email)
+                put("source_site_password",Source)
+                put("User_id",userId)
+            }
 
-        passSaveDatabaseHelper = ContextStoredActivity?.let { PassSaveDatabaseHelper(it) }!!
-        SQLiteDatabase = passSaveDatabaseHelper.readableDatabase
+            passSaveDatabaseHelper = ContextStoredActivity?.let { PassSaveDatabaseHelper(it) }!!
+            SQLiteDatabase = passSaveDatabaseHelper.readableDatabase
 
-        SQLiteDatabase.insert("UserPassword",null, contentValues)
+            SQLiteDatabase.insert("UserPassword",null, contentValues)
+
+        }
 
         return combinedPassword
     }

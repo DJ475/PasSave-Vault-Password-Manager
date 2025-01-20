@@ -32,17 +32,40 @@
             android:visibility="gone">
         </TextView>
 
-        <EditText
-            android:id="@+id/EncryptPassword"
+        <LinearLayout
+            android:id="@+id/HoldInputs"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inputType="textPassword"
-            android:layout_weight="0.80"
-            android:hint="@string/StringEncryptPassword"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="25sp">
-        </EditText>
+            android:layout_weight="0.80">
+
+            <EditText
+                android:id="@+id/EncryptPassword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textPassword"
+                android:layout_weight="0.50"
+                android:hint="@string/StringEncryptPassword"
+                android:gravity="center"
+                android:textColor="@color/black"
+                android:textSize="18sp">
+            </EditText>
+
+<!--            <EditText-->
+<!--                android:id="@+id/EditTextUsername"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:inputType="textPassword"-->
+<!--                android:layout_weight="0.50"-->
+<!--                android:hint="@string/StringUsernameInput"-->
+<!--                android:gravity="center"-->
+<!--                android:textColor="@color/black"-->
+<!--                android:textSize="18sp">-->
+<!--            </EditText>-->
+
+
+
+        </LinearLayout>
+
 
         <EditText
             android:id="@+id/EncryptSourcePassword"
@@ -53,7 +76,7 @@
             android:hint="@string/StringEncryptSourcePassword"
             android:gravity="center"
             android:textColor="@color/black"
-            android:textSize="25sp">
+            android:textSize="18sp">
         </EditText>
 
 
