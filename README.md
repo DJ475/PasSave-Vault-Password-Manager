@@ -13,11 +13,11 @@ When Closing the app and restarting it, you are asked to login and to do this us
 
 After being logged in you have 2 options, to have the app generate a safe password for you or create your own password. The next field needed in order to keep track of your passwords is the source/website which you can enter accordinly
 
-Update 0.01:
+Update 0.02:
    * Deletion of Passwords
 
 Next Futures:
-   * Update of Passwords
+   * Update of User's Passwords
 
 ### Prerequisites
 - Dependencies and imports
