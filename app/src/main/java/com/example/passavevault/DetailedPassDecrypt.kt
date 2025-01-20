@@ -20,7 +20,6 @@ class DetailedPassDecrypt : AppCompatActivity() {
     private lateinit var editTextPassword: EditText
     private lateinit var editTextSource: EditText
     private lateinit var buttonDelete: Button
-    private lateinit var buttonUpdate: Button
 
     private lateinit var passSaveDatabaseHelper: PassSaveDatabaseHelper
     private lateinit var SQLiteDatabase: SQLiteDatabase
@@ -39,7 +38,6 @@ class DetailedPassDecrypt : AppCompatActivity() {
         editTextSource = findViewById(R.id.IdTextviewSource)
         editTextPassword = findViewById(R.id.IdTextviewDecrypted)
         buttonDelete = findViewById(R.id.ButtonDelete)
-        buttonUpdate = findViewById(R.id.ButtonUpdate)
 
         passSaveDatabaseHelper = PassSaveDatabaseHelper(applicationContext)
         SQLiteDatabase = passSaveDatabaseHelper.readableDatabase
@@ -58,42 +56,43 @@ class DetailedPassDecrypt : AppCompatActivity() {
             finish()
         }
 
-        buttonUpdate.setOnClickListener {
-            // Get the password ID to delete
-            println("Password ID to update: $Password_id")
-
-            var encodedBase64String = Base64.encodeToString(editTextPassword.text.toString().toByteArray(), Base64.DEFAULT)
-            println("Encrypted String Base64 again is: ${Base64.encodeToString(editTextPassword.text.toString().toByteArray(), Base64.DEFAULT)}")
+//        buttonUpdate.setOnClickListener {
+//            if(editTextPassword.text.isNullOrEmpty())
+//            {
+//                Toast.makeText(applicationContext,"New Password Cannot Be Empty or Null, Please Try Again", Toast.LENGTH_LONG).show()
+//                return@setOnClickListener
+//            }
+//            else
+//            {
+//                val keyStore = KeyStore.getInstance("AndroidKeyStore")
+//                keyStore.load(null)
 //
-            val keyStore = KeyStore.getInstance("AndroidKeyStore")
-            keyStore.load(null)
-
-            val secretKey = keyStore.getKey("secretKeyAlias", null) as SecretKey
+//                val secretKey = keyStore.getKey("secretKeyAlias", null) as SecretKey
 //
-            val encrypted = Cipher_E_D().encryptInfo(
-                encodedBase64String,
-                editTextSource.text.toString(),
-                userID,
-                secretKey,
-                applicationContext
-            )
+//                val encrypted = Cipher_E_D().encryptInfo(
+//                    editTextPassword.text.toString(),
+//                    editTextSource.text.toString(),
+//                    userID,
+//                    secretKey,
+//                    applicationContext,
+//                    true
+//                )
 //
-            println("Encrypted String Again is: $encrypted")
+//                var contentValues = ContentValues().apply {
+//                    put("passwordEncrypted", encrypted)
+//                    put("source_site_password", editTextSource.text.toString())
+//                    put("User_id", userID)
+//                    put("Password_id", Password_id)
+//                }
 //
-            var contentValues = ContentValues().apply {
-                put("passwordEncrypted", encrypted)
-                put("source_site_password", editTextSource.text.toString())
-                put("User_id", userID)
-                put("Password_id", Password_id)
-            }
-
-            println("source of site to update: ${editTextSource.text}")
-            println("User ID to update: $userID")
-            println("Password ID to update: $Password_id")
+//                println("source of site to update: ${editTextSource.text}")
+//                println("User ID to update: $userID")
+//                println("Password ID to update: $Password_id")
 //
-//            passSaveDatabaseHelper.UpdatePassword(Password_id,contentValues)
-            finish()
-        }
+////                passSaveDatabaseHelper.UpdatePassword(Password_id,contentValues)
+//                finish()
+//            }
+//        }
 
         if(getPass != null && getIV != null)
         {

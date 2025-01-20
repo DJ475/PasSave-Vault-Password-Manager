@@ -44,6 +44,7 @@ class StoredPassActivity : AppCompatActivity() {
 
     private lateinit var EditTextEncryptPass: EditText
     private lateinit var EditTextEncryptSource: EditText
+    private lateinit var EditTextUsername: EditText
 
     private lateinit var ButtonSubmit: Button
 
@@ -72,6 +73,8 @@ class StoredPassActivity : AppCompatActivity() {
 
         EditTextEncryptPass = findViewById(R.id.EncryptPassword)
         EditTextEncryptSource = findViewById(R.id.EncryptSourcePassword)
+//        EditTextUsername = findViewById(R.id.EditTextUsername)
+
         ButtonSubmit = findViewById(R.id.ButtonEncrypt)
 
         buttonGeneratePass = findViewById(R.id.ClickStrongPassGEN)
@@ -104,7 +107,8 @@ class StoredPassActivity : AppCompatActivity() {
                     EditTextEncryptSource.text.toString(),
                     userID,
                     secretKey,
-                    applicationContext
+                    applicationContext,
+                    false
                 )
                 println("Encrypted String: $encrypted")
             } else {

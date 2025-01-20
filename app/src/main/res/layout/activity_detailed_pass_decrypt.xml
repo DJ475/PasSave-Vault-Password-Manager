@@ -49,16 +49,6 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/ButtonUpdate"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp"
-        app:cornerRadius="0dp"
-        android:text="@string/UpdateButtonMSG"
-        android:layout_weight="0.50">
-    </Button>
-
-    <Button
         android:id="@+id/ButtonDelete"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
