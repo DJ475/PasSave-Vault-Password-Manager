@@ -9,7 +9,6 @@ import android.view.View.TEXT_ALIGNMENT_CENTER
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import android.util.Base64
 
 class ItemAdapter(
     private var cursor: Cursor,
@@ -36,7 +35,7 @@ class ItemAdapter(
                 var stringSources = cursor.getString(columns)
 
                 columns = cursor.getColumnIndex("passwordEncrypted")
-                var stringPassword = cursor.getBlob(columns)
+                var byteArrayPassword = cursor.getBlob(columns)
 
                 columns = cursor.getColumnIndex("Password_id")
                 var passwordID = cursor.getInt(columns)
@@ -44,11 +43,9 @@ class ItemAdapter(
                 columns = cursor.getColumnIndex("User_id")
                 var userID = cursor.getInt(columns)
 
-                var decodedInfo = Base64.decode(stringPassword, Base64.DEFAULT)
-
-                val ivposition = decodedInfo.indexOf(0x3A.toByte())
-                val extractPass = decodedInfo.copyOfRange(0, ivposition)
-                val extractIV = decodedInfo.copyOfRange(ivposition + 1, decodedInfo.size)
+                val ivposition = byteArrayPassword.indexOf(0x3A.toByte())
+                val extractPass = byteArrayPassword.copyOfRange(0, ivposition)
+                val extractIV = byteArrayPassword.copyOfRange(ivposition + 1, byteArrayPassword.size)
 
                 val intentDetail = Intent(applicationContextPassed, DetailedPassDecrypt::class.java)
                 intentDetail.putExtra("extractedPassword", extractPass)
@@ -60,10 +57,9 @@ class ItemAdapter(
             }
         }
 
-        // Update UI elements
         fun update() {
             var column = cursor.getColumnIndexOrThrow("passwordEncrypted")
-            textViewPass.text = cursor.getBlob(column).toString()
+            textViewPass.text = cursor.getBlob(column).decodeToString()
             textViewPass.textAlignment = TEXT_ALIGNMENT_CENTER
 
             column = cursor.getColumnIndexOrThrow("source_site_password")

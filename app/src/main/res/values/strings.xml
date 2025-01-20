@@ -16,4 +16,5 @@
     <string name="SuggestStrongPass">Click Here If You Want Us To Generate A Strong Password</string>
     <string name="DeleteButtonMSG">DELETE  THIS PASSWORD</string>
     <string name="UpdateButtonMSG">UPDATE THIS PASSWORD</string>
+    <string name="StringUsernameInput">ENTER USERNAME/EMAIL</string>
 </resources>
