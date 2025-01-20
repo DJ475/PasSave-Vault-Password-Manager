@@ -274,4 +274,14 @@ class StoredPassActivity : AppCompatActivity() {
         super.onResume()
         ReloadItemAdapter(SQLiteDatabase)
     }
+
+    override fun onPause() {
+        super.onPause()
+        ReloadItemAdapter(SQLiteDatabase)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        ReloadItemAdapter(SQLiteDatabase)
+    }
 }
