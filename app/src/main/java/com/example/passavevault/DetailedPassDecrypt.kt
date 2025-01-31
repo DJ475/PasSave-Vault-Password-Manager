@@ -51,14 +51,14 @@ class DetailedPassDecrypt : AppCompatActivity() {
         // Set click listener for the delete button
         buttonDelete.setOnClickListener {
             // Get the password ID to delete
-            println("Password ID to delete: $Password_id")
             passSaveDatabaseHelper.DeleteSpecific(Password_id)
             finish()
         }
 
         if(getPass != null && getIV != null)
         {
-            var decryptString = Cipher_E_D().decryptInfo(getPass,getIV)
+
+            var decryptString = Cipher_E_D().setDataDecrypt(getPass,getIV)
 
             if(decryptString.isEmpty())
             {

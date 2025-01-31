@@ -26,9 +26,6 @@ import java.security.KeyStore
 class MainActivity : AppCompatActivity() {
     private lateinit var sqLiteDatabase: SQLiteDatabase
     private lateinit var passSaveDatabaseHelper : PassSaveDatabaseHelper
-    private lateinit var CurrentUser: String
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,10 +65,6 @@ class MainActivity : AppCompatActivity() {
 
         fragmentChangeFun(LoginFragment())
 
-        // Destroying the Secret Key
-
-
-//        println("Password Hashed is now: " + password)
     }
 
 
@@ -115,7 +108,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun fragmentChangeFun(fragemntNameSwitch: Fragment)
+    private fun fragmentChangeFun(fragemntNameSwitch: Fragment)
     {
         val ft = supportFragmentManager.beginTransaction() // required
         ft.replace(R.id.currentUiFrameLayout, fragemntNameSwitch) // required

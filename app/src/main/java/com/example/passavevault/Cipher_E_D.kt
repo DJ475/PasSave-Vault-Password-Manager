@@ -16,10 +16,21 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import android.util.Base64
+import android.widget.Toast
 
 class Cipher_E_D {
     private lateinit var SQLiteDatabase: SQLiteDatabase
     private lateinit var passSaveDatabaseHelper: PassSaveDatabaseHelper
+
+    private lateinit var dataSent: String
+    private lateinit var Source: String
+    private var userId: Int = 0
+    private lateinit var SecretKey: SecretKey
+    private lateinit var ContextActivity: Context
+
+    private lateinit var dataSentDecrypt: ByteArray
+    private lateinit var ivDecrypt: ByteArray
+
     companion object
     {
         // function for generating the aes secret key
@@ -31,7 +42,6 @@ class Cipher_E_D {
 
             // Check if the key already exists
             if (keyStore.containsAlias(Alias)) {
-                println("Key already exists with alias: $Alias")
                 val key = keyStore.getKey(Alias, null)
                 if (key is SecretKey) {
                     return key
@@ -56,14 +66,41 @@ class Cipher_E_D {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun encryptInfo(
+    public fun setDataEncrypt(
         dataSent: String,
         Source: String,
         userId: Int,
         SecretKey: SecretKey,
-        ContextStoredActivity: Context?,
-        YesUpdateStatus: Boolean,
-    ): ByteArray
+        ContextActivity: Context?,
+    )
+    {
+
+        this.dataSent = dataSent
+        this.Source = Source
+        this.userId = userId
+        this.SecretKey = SecretKey
+        // encryption is kept to only encrypt when all values are set
+        if (ContextActivity != null && dataSent != null && Source != null && userId != null && SecretKey != null) {
+            this.ContextActivity = ContextActivity
+            encryptionMechanismStart()
+        }
+        else
+        {
+            Toast.makeText(ContextActivity, "Data Setting was Unsuccessful, Encryption Failed",Toast.LENGTH_LONG).show()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    // Function used to call encryption Mechanism to do work, in order to add more security
+    // and make it so that encryption cannot be used outside of this class
+    private fun encryptionMechanismStart(): ByteArray
+    {
+        return encryptInfo()
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun encryptInfo(): ByteArray
     {
         val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
 
@@ -79,32 +116,44 @@ class Cipher_E_D {
 
         //var stringRepresentation = Base64.encodeToString(combinedPassword,Base64.DEFAULT)
 
-        if(YesUpdateStatus == true)
-        {
-            println("Code is now completing update functionality")
-            return combinedPassword
-        }
-        else
-        {
-            println("code is now adding to database")
+
             val contentValues = ContentValues().apply {
                 put("passwordEncrypted",combinedPassword)
-//                put("username_email",Username_Email)
                 put("source_site_password",Source)
                 put("User_id",userId)
             }
 
-            passSaveDatabaseHelper = ContextStoredActivity?.let { PassSaveDatabaseHelper(it) }!!
+            passSaveDatabaseHelper = ContextActivity?.let { PassSaveDatabaseHelper(it) }!!
             SQLiteDatabase = passSaveDatabaseHelper.readableDatabase
 
             SQLiteDatabase.insert("UserPassword",null, contentValues)
 
-        }
-
         return combinedPassword
     }
 
-    fun decryptInfo(dataSent: ByteArray,iv: ByteArray): String
+    public fun setDataDecrypt(dataSent: ByteArray,iv: ByteArray): String
+    {
+        var decryptedString = ""
+        this.dataSentDecrypt = dataSent
+        this.ivDecrypt = iv
+        if(dataSent != null && iv != null)
+        {
+            decryptedString = decryptionMechanismStart()
+        }
+        else
+        {
+            Toast.makeText(ContextActivity, "Data Setting was Unsuccessful, Decryption Failed",Toast.LENGTH_LONG).show()
+        }
+
+        return decryptedString
+    }
+
+    private fun decryptionMechanismStart():String
+    {
+        return decryptInfo()
+    }
+
+    private fun decryptInfo(): String
     {
         val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
 
@@ -112,13 +161,13 @@ class Cipher_E_D {
         keyStore.load(null)
         var secretKey = keyStore.getKey("secretKeyAlias",null) as SecretKey
 
-        var ivParamSpec = IvParameterSpec(iv)
+        var ivParamSpec = IvParameterSpec(ivDecrypt)
         cipher.init(Cipher.DECRYPT_MODE,secretKey, ivParamSpec)
 
-        Log.d("Decrypt Info", "Data to decrypt: ${Base64.encodeToString(dataSent, Base64.DEFAULT)}")
-        Log.d("Decrypt Info", "IV: ${Base64.encodeToString(iv, Base64.DEFAULT)}")
+        Log.d("Decrypt Info", "Data to decrypt: ${Base64.encodeToString(dataSentDecrypt, Base64.DEFAULT)}")
+        Log.d("Decrypt Info", "IV: ${Base64.encodeToString(ivDecrypt, Base64.DEFAULT)}")
 
-        var cipherFinalDecrypt = cipher.doFinal(dataSent)
+        var cipherFinalDecrypt = cipher.doFinal(dataSentDecrypt)
         return String(Base64.decode(cipherFinalDecrypt,Base64.DEFAULT))
     }
 }

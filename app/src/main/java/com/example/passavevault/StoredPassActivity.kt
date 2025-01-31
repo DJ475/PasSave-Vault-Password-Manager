@@ -72,7 +72,6 @@ class StoredPassActivity : AppCompatActivity() {
 
         EditTextEncryptPass = findViewById(R.id.EncryptPassword)
         EditTextEncryptSource = findViewById(R.id.EncryptSourcePassword)
-//        EditTextUsername = findViewById(R.id.EditTextUsername)
 
         ButtonSubmit = findViewById(R.id.ButtonEncrypt)
 
@@ -92,8 +91,6 @@ class StoredPassActivity : AppCompatActivity() {
         }
 
         ButtonSubmit.setOnClickListener {
-            println("Print Here")
-
             if(EditTextEncryptPass.text.isNullOrEmpty() || EditTextEncryptSource.text.isNullOrEmpty())
             {
                 Toast.makeText(this,"Please Enter Password and Source to Continue",Toast.LENGTH_SHORT).show()
@@ -101,15 +98,14 @@ class StoredPassActivity : AppCompatActivity() {
             }
 
             if (secretKey != null) {
-                val encrypted = Cipher_E_D().encryptInfo(
+                val encrypted = Cipher_E_D().setDataEncrypt(
                     Base64.encodeToString(EditTextEncryptPass.text.toString().toByteArray(), Base64.DEFAULT),
                     EditTextEncryptSource.text.toString(),
                     userID,
                     secretKey,
-                    applicationContext,
-                    false
+                    applicationContext
                 )
-                println("Encrypted String: $encrypted")
+
             } else {
                 Log.e("EncryptionError", "Failed to encrypt. Secret key is null.")
                 Toast.makeText(this, "Encryption failed due to missing secret key.", Toast.LENGTH_SHORT).show()

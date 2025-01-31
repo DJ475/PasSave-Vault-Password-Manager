@@ -113,7 +113,6 @@ class LoginFragment : Fragment() {
                 while(cursorUserName.moveToNext()) {
                     var column_username = cursorUserName.getColumnIndex("username")
                     var column_pass = cursorUserName.getColumnIndex("password")
-                    println("Username: $column_username, Password:$column_pass")
                     if (usernameString == cursorUserName.getString(column_username) && BCrypt.checkpw(passwordString, cursorSelect.getString(column_pass).toString()))
                     {
                         println("Username Found Logging In now")
@@ -128,7 +127,6 @@ class LoginFragment : Fragment() {
                     else
                     {
                         loadingBarLogin.visibility = View.GONE
-                        println("Username or Password Not Found Please Make Sure The Information Above Is Correct")
                         clearInput()
                         break
                     }
@@ -163,8 +161,6 @@ class LoginFragment : Fragment() {
             intent_PassStoreAct.putExtra("userID",string_id)
             startActivity(intent_PassStoreAct)
         }
-
-
     }
 
     override fun onStart() {
