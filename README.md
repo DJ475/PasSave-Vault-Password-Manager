@@ -17,7 +17,7 @@ Update 0.03:
    * Update on Access Modifiers(More Secure From Different Screens)
 
 Next Futures:
-   * Email/Username Field
+   * Adding of Email/Username Field
    * Update of User's Passwords
      
 
